@@ -296,69 +296,71 @@
 //   )
 // }
 
-"use client"
+"use client";
 
-import type React from "react"
-import { useState, useRef, useEffect } from "react"
+import type React from "react";
+import { useState, useRef, useEffect } from "react";
 import {
   Sparkles,
   Maximize2,
+  Minimize2,
   Trash2,
   X,
-  Settings,
+  Send,
   ThumbsUp,
   ThumbsDown,
   Copy,
   RefreshCw,
   Moon,
   Sun,
-} from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { LandingView } from "@/components/landing-view"
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { LandingView } from "@/components/landing-view";
 
 interface Message {
-  id: string
-  type: "user" | "assistant"
-  content: string
-  status?: "searching" | "generating" | "complete"
+  id: string;
+  type: "user" | "assistant";
+  content: string;
+  status?: "searching" | "generating" | "complete";
 }
 
 export function BNPAssistant() {
-  const [messages, setMessages] = useState<Message[]>([])
-  const [input, setInput] = useState("")
-  const [isChatOpen, setIsChatOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [theme, setTheme] = useState<"light" | "dark">("light")
-  const inputRef = useRef<HTMLInputElement>(null)
-  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [input, setInput] = useState("");
+  const [isChatOpen, setIsChatOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isMaximized, setIsMaximized] = useState(false);
+  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const inputRef = useRef<HTMLInputElement>(null);
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    document.documentElement.classList.toggle("dark", theme === "dark")
-  }, [theme])
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme]);
 
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" })
-  }
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
 
   useEffect(() => {
-    scrollToBottom()
-  }, [messages])
+    scrollToBottom();
+  }, [messages]);
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || isLoading) return
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: "user",
       content: input.trim(),
-    }
+    };
 
-    setMessages((prev) => [...prev, userMessage])
-    const questionText = input.trim()
-    setInput("")
-    setIsChatOpen(true)
-    setIsLoading(true)
+    setMessages((prev) => [...prev, userMessage]);
+    const questionText = input.trim();
+    setInput("");
+    setIsChatOpen(true);
+    setIsLoading(true);
 
     // Add searching status
     const searchingMessage: Message = {
@@ -366,8 +368,8 @@ export function BNPAssistant() {
       type: "assistant",
       content: `Searched ${questionText}`,
       status: "searching",
-    }
-    setMessages((prev) => [...prev, searchingMessage])
+    };
+    setMessages((prev) => [...prev, searchingMessage]);
 
     try {
       // Call your FastAPI backend
@@ -380,62 +382,84 @@ export function BNPAssistant() {
           question: questionText,
           language: "en",
         }),
-      })
+      });
 
       if (!response.ok) {
-        throw new Error("Failed to get response")
+        throw new Error("Failed to get response");
       }
 
-      const data = await response.json()
+      const data = await response.json();
 
       // Remove searching message and add final response
       const assistantMessage: Message = {
         id: (Date.now() + 2).toString(),
         type: "assistant",
-        content: data.answer || "I couldn't find specific information in the BNP Paribas documentation.",
+        content:
+          data.answer ||
+          "I couldn't find specific information in the BNP Paribas documentation.",
         status: "complete",
-      }
+      };
 
-      setMessages((prev) => [...prev.filter((msg) => msg.id !== searchingMessage.id), assistantMessage])
+      setMessages((prev) => [
+        ...prev.filter((msg) => msg.id !== searchingMessage.id),
+        assistantMessage,
+      ]);
     } catch (error) {
-      console.error("[v0] Error calling API:", error)
+      console.error("Error calling API:", error);
       setMessages((prev) => [
         ...prev.filter((msg) => msg.id !== searchingMessage.id),
         {
           id: (Date.now() + 2).toString(),
           type: "assistant",
-          content: "Sorry, I encountered an error connecting to the assistant. Please try again.",
+          content:
+            "Sorry, I encountered an error connecting to the assistant. Please try again.",
           status: "complete",
         },
-      ])
+      ]);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
-  }
+  };
 
   const handleReset = () => {
-    setMessages([])
-    setIsChatOpen(false)
-    setInput("")
-  }
+    setMessages([]);
+    setIsChatOpen(false);
+    setIsMaximized(false);
+    setInput("");
+  };
 
   const toggleTheme = () => {
-    setTheme((prev) => (prev === "light" ? "dark" : "light"))
-  }
+    setTheme((prev) => (prev === "light" ? "dark" : "light"));
+  };
 
   return (
     <div className="relative min-h-screen bg-background text-foreground">
-      <Button variant="ghost" size="icon" onClick={toggleTheme} className="fixed top-4 right-4 z-50 rounded-full">
-        {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleTheme}
+        className="fixed top-4 left-4 z-50 rounded-full"
+      >
+        {theme === "light" ? (
+          <Moon className="h-5 w-5" />
+        ) : (
+          <Sun className="h-5 w-5" />
+        )}
       </Button>
 
       <LandingView isChatOpen={isChatOpen} />
 
       {/* Chat Sidebar - slides in from right */}
       <div
-        className={`fixed inset-y-0 right-0 z-40 w-full max-w-md transform border-l border-border bg-background transition-transform duration-500 ease-in-out md:max-w-lg ${
-          isChatOpen ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={
+          isMaximized
+            ? `fixed inset-y-0 right-0 z-40 w-full md:w-1/2 max-w-none transform border-l border-border bg-background transition-transform duration-500 ease-in-out ${
+                isChatOpen ? "translate-x-0" : "translate-x-full"
+              }`
+            : `fixed inset-y-0 right-0 z-40 w-full max-w-md transform border-l border-border bg-background transition-transform duration-500 ease-in-out md:max-w-lg ${
+                isChatOpen ? "translate-x-0" : "translate-x-full"
+              }`
+        }
       >
         <div className="flex h-full flex-col">
           {/* Chat Header */}
@@ -445,13 +469,36 @@ export function BNPAssistant() {
               <span className="font-medium">Assistant</span>
             </div>
             <div className="flex items-center gap-1">
-              <Button variant="ghost" size="icon" className="h-8 w-8">
-                <Maximize2 className="h-4 w-4" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                aria-label={isMaximized ? "Restore chat size" : "Maximize chat"}
+                onClick={() => setIsMaximized((v) => !v)}
+              >
+                {isMaximized ? (
+                  <Minimize2 className="h-4 w-4" />
+                ) : (
+                  <Maximize2 className="h-4 w-4" />
+                )}
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={handleReset}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={handleReset}
+              >
                 <Trash2 className="h-4 w-4" />
               </Button>
-              <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsChatOpen(false)}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+                onClick={() => {
+                  setIsChatOpen(false);
+                  setIsMaximized(false);
+                }}
+              >
                 <X className="h-4 w-4" />
               </Button>
             </div>
@@ -464,34 +511,63 @@ export function BNPAssistant() {
                 <div key={message.id}>
                   {message.type === "user" ? (
                     <div className="flex justify-end">
-                      <div className="rounded-2xl bg-muted px-4 py-2 text-sm">{message.content}</div>
+                      <div className="rounded-2xl bg-muted px-4 py-2 text-sm">
+                        {message.content}
+                      </div>
                     </div>
                   ) : (
                     <div className="space-y-4">
                       {message.status === "searching" && (
                         <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <svg
+                            className="h-4 w-4"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                          >
                             <circle cx="11" cy="11" r="8" strokeWidth="2" />
-                            <path d="m21 21-4.35-4.35" strokeWidth="2" strokeLinecap="round" />
+                            <path
+                              d="m21 21-4.35-4.35"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                            />
                           </svg>
                           {message.content}
                         </div>
                       )}
                       {message.status === "complete" && (
                         <div className="space-y-4">
-                          <div className="text-sm leading-relaxed">{message.content}</div>
+                          <div className="text-sm leading-relaxed">
+                            {message.content}
+                          </div>
                           {/* Feedback buttons */}
                           <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
                               <ThumbsUp className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
                               <ThumbsDown className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
                               <Copy className="h-4 w-4" />
                             </Button>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                            >
                               <RefreshCw className="h-4 w-4" />
                             </Button>
                           </div>
@@ -518,11 +594,11 @@ export function BNPAssistant() {
                 className="w-full rounded-full border border-border bg-muted px-6 py-3 pr-14 text-sm placeholder-muted-foreground focus:border-ring focus:outline-none disabled:opacity-50"
               />
               <Button
-                type="button"
+                type="submit"
                 size="icon"
                 className="absolute right-2 top-1/2 h-9 w-9 -translate-y-1/2 rounded-full bg-primary hover:bg-primary/90"
               >
-                <Settings className="h-4 w-4 text-primary-foreground" />
+                <Send className="h-4 w-4 text-primary-foreground" />
               </Button>
             </form>
           </div>
@@ -531,8 +607,8 @@ export function BNPAssistant() {
 
       {/* Centered Input - Initial State */}
       {!isChatOpen && (
-        <div className="fixed bottom-8 left-1/2 w-full max-w-2xl -translate-x-1/2 px-6 z-30">
-          <form onSubmit={handleSubmit} className="relative">
+        <div className="fixed bottom-8 left-1/2 w-full max-w-md -translate-x-1/2 px-6 z-30">
+          <form id="bnp-chat-form" onSubmit={handleSubmit} className="relative">
             <input
               type="text"
               value={input}
@@ -540,13 +616,20 @@ export function BNPAssistant() {
               placeholder="Ask a question..."
               className="w-full rounded-full border border-border bg-card/80 px-6 py-4 pr-24 placeholder-muted-foreground backdrop-blur-sm transition-all focus:border-ring focus:bg-card focus:outline-none"
             />
-            <div className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1 text-xs text-muted-foreground">
-              <kbd className="rounded bg-muted px-2 py-1 font-mono">Ctrl</kbd>
-              <span className="text-base">↑</span>
+
+            <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
+              <Sparkles
+                onClick={() =>
+                  (document.getElementById("bnp-chat-form") as HTMLFormElement | null)
+                    ?.requestSubmit()
+                }
+                className="h-5 w-5 "
+                color="green"
+              />
             </div>
           </form>
         </div>
       )}
     </div>
-  )
+  );
 }

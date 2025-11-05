@@ -317,11 +317,18 @@ import {
 import { Button } from "@/components/ui/button";
 import { LandingView } from "@/components/landing-view";
 
+interface Source {
+  category: string;
+  title: string;
+  url: string;
+}
+
 interface Message {
   id: string;
   type: "user" | "assistant";
   content: string;
   status?: "searching" | "generating" | "complete";
+  sources?: Source[];
 }
 
 export function BNPAssistant() {
@@ -345,7 +352,6 @@ export function BNPAssistant() {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -366,26 +372,26 @@ export function BNPAssistant() {
     const searchingMessage: Message = {
       id: (Date.now() + 1).toString(),
       type: "assistant",
-      content: `Searched ${questionText}`,
+      content: `Searching for information...`,
       status: "searching",
     };
     setMessages((prev) => [...prev, searchingMessage]);
 
     try {
-      // Call your FastAPI backend
-      const response = await fetch("http://localhost:8000/query", {
+      // ✅ Call Next.js API Route (not FastAPI directly)
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
           question: questionText,
-          language: "en",
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to get response");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to get response");
       }
 
       const data = await response.json();
@@ -394,25 +400,23 @@ export function BNPAssistant() {
       const assistantMessage: Message = {
         id: (Date.now() + 2).toString(),
         type: "assistant",
-        content:
-          data.answer ||
-          "I couldn't find specific information in the BNP Paribas documentation.",
+        content: data.answer || "I couldn't find specific information.",
         status: "complete",
+        sources: data.sources, // Add sources to message
       };
 
       setMessages((prev) => [
         ...prev.filter((msg) => msg.id !== searchingMessage.id),
         assistantMessage,
       ]);
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error calling API:", error);
       setMessages((prev) => [
         ...prev.filter((msg) => msg.id !== searchingMessage.id),
         {
           id: (Date.now() + 2).toString(),
           type: "assistant",
-          content:
-            "Sorry, I encountered an error connecting to the assistant. Please try again.",
+          content: "Sorry, I encountered an error. Please try again.",
           status: "complete",
         },
       ]);
@@ -540,6 +544,32 @@ export function BNPAssistant() {
                           <div className="text-sm leading-relaxed">
                             {message.content}
                           </div>
+                          {/* Display Sources */}
+                          {message.sources && message.sources.length > 0 && (
+                            <div className="mt-4 space-y-2">
+                              <p className="text-xs font-semibold text-muted-foreground">
+                                📚 Sources ({message.sources.length})
+                              </p>
+                              <div className="space-y-2">
+                                {message.sources.map((source, idx) => (
+                                  <a
+                                    key={idx}
+                                    href={source.url}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="block p-3 bg-card border border-border rounded-lg hover:border-primary transition-colors"
+                                  >
+                                    <p className="text-xs font-semibold text-primary mb-1">
+                                      {source.category}
+                                    </p>
+                                    <p className="text-sm font-medium truncate">
+                                      {source.title}
+                                    </p>
+                                  </a>
+                                ))}
+                              </div>
+                            </div>
+                          )}
                           {/* Feedback buttons */}
                           <div className="flex items-center gap-2">
                             <Button
@@ -620,8 +650,11 @@ export function BNPAssistant() {
             <div className="absolute right-4 top-1/2 -translate-y-1/2 text-muted-foreground">
               <Sparkles
                 onClick={() =>
-                  (document.getElementById("bnp-chat-form") as HTMLFormElement | null)
-                    ?.requestSubmit()
+                  (
+                    document.getElementById(
+                      "bnp-chat-form"
+                    ) as HTMLFormElement | null
+                  )?.requestSubmit()
                 }
                 className="h-5 w-5 "
                 color="green"

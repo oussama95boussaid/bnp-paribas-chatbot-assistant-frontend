@@ -54,7 +54,7 @@ export function ChatView({ isVisible, onBack }: ChatViewProps) {
     setIsLoading(true)
 
     try {
-      const response = await fetch("http://localhost:8000/query", {
+      const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -66,7 +66,8 @@ export function ChatView({ isVisible, onBack }: ChatViewProps) {
       })
 
       if (!response.ok) {
-        throw new Error("Failed to get response")
+        const errorData = await response.json()
+        throw new Error(errorData.error || "Failed to get response")
       }
 
       const data = await response.json()
@@ -85,7 +86,7 @@ export function ChatView({ isVisible, onBack }: ChatViewProps) {
         id: (Date.now() + 1).toString(),
         role: "assistant",
         content:
-          "Désolé, je n'ai pas pu traiter votre demande. Veuillez vérifier que le serveur FastAPI est en cours d'exécution sur http://localhost:8000",
+          "Désolé, je n'ai pas pu traiter votre demande. Veuillez vérifier que le serveur backend est disponible.",
       }
       setMessages((prev) => [...prev, errorMessage])
     } finally {

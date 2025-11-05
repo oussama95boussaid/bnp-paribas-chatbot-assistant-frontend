@@ -1,6 +1,10 @@
 # BNP Paribas Virtual Assistant - Frontend 🏦✨
 
-A modern, responsive web interface for the BNP Paribas Virtual Assistant chatbot. Built with Next.js 16 and deployed on Vercel, providing an elegant user experience for banking inquiries powered by AI.
+### BNP Paribas Virtual Assistant — Sleek, Secure & AI‑Powered
+
+A polished, on‑brand web interface delivering fast, secure banking conversations. Built with Next.js 16 and deployed on Vercel, the frontend offers a responsive, accessible experience in French and English, real‑time GPT‑4 responses with source attribution (RAG), and seamless integration with enterprise backends for production‑grade reliability.
+
+Highlights: on‑brand UI, bilingual support, real‑time streaming replies, and bank‑grade security.
 
 ## 🌐 Live Demo
 
@@ -144,7 +148,7 @@ Required for deployment:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `FASTAPI_URL` | Backend API endpoint | `http://your-backend-api.azurecontainer.io:8000` |
+| `FASTAPI_URL` | Backend API endpoint | `http://your-backend-api_url:8000` |
 
 ### Vercel Deployment
 

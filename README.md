@@ -4,7 +4,7 @@ A modern, responsive web interface for the BNP Paribas Virtual Assistant chatbot
 
 ## 🌐 Live Demo
 
-**Production URL**: https://bnpparibasassistant.vercel.app/
+**Production**: Deployed on Vercel
 
 Experience the assistant live - ask questions about BNP Paribas products, services, and banking procedures in French or English!
 
@@ -36,7 +36,7 @@ OpenAI GPT-4 + RAG System
 ### Key Components
 
 - **Frontend**: Next.js 16 with React 19, TypeScript, Tailwind CSS
-- **Backend API**: http://bnp-assistant-api-oussama.eastus.azurecontainer.io:8000
+- **Backend API**: Configured via environment variables (see `.env` setup)
 - **Deployment**: Vercel (frontend) + Azure Container Instances (backend)
 - **AI Engine**: OpenAI GPT-4 with RAG (Retrieval-Augmented Generation)
 
@@ -87,9 +87,11 @@ pnpm install
 Create a `.env` file in the root directory:
 
 ```bash
-# Backend API URL (Azure Container Instance)
-FASTAPI_URL=http://bnp-assistant-api-oussama.eastus.azurecontainer.io:8000
+# Backend API URL (Azure Container Instance or your deployment)
+FASTAPI_URL=http://your-backend-api-url:8000
 ```
+
+> **Note**: Replace `your-backend-api-url` with your actual FastAPI backend endpoint.
 
 4. **Run development server**
 ```bash
@@ -142,7 +144,7 @@ Required for deployment:
 
 | Variable | Description | Example |
 |----------|-------------|---------|
-| `FASTAPI_URL` | Backend API endpoint | `http://bnp-assistant-api-oussama.eastus.azurecontainer.io:8000` |
+| `FASTAPI_URL` | Backend API endpoint | `http://your-backend-api.azurecontainer.io:8000` |
 
 ### Vercel Deployment
 
@@ -192,7 +194,11 @@ const handleSubmit = async (e: React.FormEvent) => {
 Test if the backend is connected:
 
 ```bash
-curl https://bnpparibasassistant.vercel.app/api/health
+# For local development
+curl http://localhost:3000/api/health
+
+# For production (replace with your deployment URL)
+curl https://your-frontend-url.vercel.app/api/health
 ```
 
 ### Local Testing
@@ -218,17 +224,8 @@ npm run build
 ## 🔗 Related Projects
 
 - **Backend Repository**: [BNP Paribas Virtual Assistant Backend](https://github.com/oussama95boussaid/-BNP-Paribas-virtuel-assistant-Chatbot)
-- **Backend API Documentation**: http://bnp-assistant-api-oussama.eastus.azurecontainer.io:8000/docs
+- **Portfolio**: [Developer Portfolio](https://oussamaboussaidportfolio.vercel.app/)
 
-## 🤝 Contributing
-
-Contributions are welcome! Please:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
 
 ## 📝 License
 
@@ -240,21 +237,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - GitHub: [@oussama95boussaid](https://github.com/oussama95boussaid)
 - LinkedIn: [Oussama Boussaid](https://www.linkedin.com/in/oussama-boussaid/)
 
-## 🙏 Acknowledgments
 
-- **BNP Paribas** for banking documentation and brand assets
-- **Vercel** for seamless frontend deployment
-- **OpenAI** for GPT-4 language model
-- **Next.js Team** for the amazing framework
-- **Shadcn** for beautiful UI components
-- **Community** for open-source tools and libraries
 
-## 📞 Support
-
-For issues, questions, or feedback:
-- 🐛 [Open an Issue](https://github.com/oussama95boussaid/bnp-paribas-chatbot-assistant-frontend/issues)
-- 💬 [Discussions](https://github.com/oussama95boussaid/bnp-paribas-chatbot-assistant-frontend/discussions)
-
----
-
-**Built with ❤️ using Next.js and deployed on Vercel**

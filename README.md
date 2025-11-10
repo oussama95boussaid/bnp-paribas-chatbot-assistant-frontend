@@ -2,13 +2,11 @@
 
 ### BNP Paribas Virtual Assistant — Sleek, Secure & AI‑Powered
 
-A polished, on‑brand web interface delivering fast, secure banking conversations. Built with Next.js 16 and deployed on Vercel, the frontend offers a responsive, accessible experience in French and English, real‑time GPT‑4 responses with source attribution (RAG), and seamless integration with enterprise backends for production‑grade reliability.
-
-Highlights: on‑brand UI, bilingual support, real‑time streaming replies, and bank‑grade security.
+A virtual banking assistant that helps customers answer their questions about BNP Paribas banking products by retrieving information from their website based on scraping without integrating robots.txt
 
 ## 🌐 Live Demo
 
-**Production**: Deployed on Vercel
+**Production**: [BNP Paribas virtual banking assistant](https://bnpparibasassistant.vercel.app/)
 
 Experience the assistant live - ask questions about BNP Paribas products, services, and banking procedures in French or English!
 

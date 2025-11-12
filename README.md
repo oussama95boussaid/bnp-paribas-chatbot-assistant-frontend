@@ -6,7 +6,7 @@ A virtual banking assistant that helps customers answer their questions about BN
 
 ## 🌐 Live Demo
 
-**Production**: [BNP Paribas virtual banking assistant](https://bnpparibasassistant.vercel.app/)
+**Production**: [BNP Paribas virtual banking assistant](https://banknpchatassistant.vercel.app/)
 
 Experience the assistant live - ask questions about BNP Paribas products, services, and banking procedures in French or English!
 
